@@ -1,7 +1,20 @@
 import qrcode
+import os
+import webbrowser
+from PIL import Image
+import validators  # Optional for URL validation
 
-# Get user input for the QR code
-data = input("ENTER ")
+# Get user input for the QR code data
+data = input("Enter the text or URL for the QR code: ").strip()
+
+# Check if input is empty
+if not data:
+    print("Error: QR code data cannot be empty.")
+    exit(1)
+
+# Validate URL input (Optional)
+if not validators.url(data):
+    print("Warning: The input is not a valid URL, but it will still be encoded as text.")
 
 # Create a QR code
 qr = qrcode.QRCode(
@@ -14,9 +27,27 @@ qr = qrcode.QRCode(
 qr.add_data(data)
 qr.make(fit=True)
 
-# Create and save the QR code image
+# Create QR code image
 qr_img = qr.make_image(fill="black", back_color="white")
-qr_img.show()  # Open the QR code image
-qr_img.save("qrcode.png")  # Save the QR code as an image
 
-print("QR Code generated and saved as 'qrcode.png'! 🎉")
+# Ask user where to save the QR code
+save_path = input("Enter the file path to save the QR code (e.g., 'qrcode.png'): ").strip()
+
+# If the user does not provide a filename, use a default name
+if not save_path:
+    save_path = "qrcode.png"
+
+# Ensure the file has the correct extension
+if not save_path.lower().endswith(('.png', '.jpg', '.jpeg')):
+    save_path += ".png"
+
+# Validate and save the QR code image
+try:
+    qr_img.save(save_path)
+    print(f"✅ QR Code generated and saved as '{save_path}'!")
+
+    # Open the generated QR code
+    img = Image.open(save_path)
+    img.show()
+except Exception as e:
+    print(f"❌ An error occurred: {e}")
